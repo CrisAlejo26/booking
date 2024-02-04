@@ -1,0 +1,13 @@
+.cardBoxShadow {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Sombra inicial suave */
+    transition: box-shadow 0.5s ease-in-out;
+    transition: transform 0.3s ease-in-out;
+}
+
+.cardBoxShadow:hover {
+    box-shadow: $cardsShadow;
+    transform: translateY(-.3rem);
+    transition: box-shadow 0.5s ease-in-out;
+    transition: transform 0.3s ease-in-out;
+}
