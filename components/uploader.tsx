@@ -12,23 +12,23 @@ export const Uploader = () => {
             <form 
                 className="form" 
                 action=""
-                onClick={() => document.querySelector('.form_input1')?.click()}
+                // onClick={() => document.querySelector('.form_input1')?.click()}
             >
                 <input 
                     type="file"  
                     accept='image/*' 
                     className='form_input1'
                     hidden
-                    onChange={({target: {files}}) => {
-                        files[0] && setFileName(files[0].name)
-                        if(files){
-                            setImage(URL.createObjectURL(files[0]))
-                        }
-                    }}
+                    // onChange={({target: {files}}) => {
+                    //     files[0] && setFileName(files[0].name)
+                    //     if(files){
+                    //         setImage(URL.createObjectURL(files[0]))
+                    //     }
+                    // }}
                 />
                 {image ?
-                    <img src={image} width={120} height={12
-                        0} alt={fileName}/> 
+                    // <img src={image} width={120} height={120} alt={fileName}/> 
+                    null
                 : 
                     <MdCloudUpload color="#1475cf" size={60} />
                 }
