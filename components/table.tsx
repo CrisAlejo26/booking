@@ -67,6 +67,7 @@ const Table = () => {
                         <th className="px-4 py-2 border">Pago de reserva</th>
                         <th className="px-4 py-2 border">Pago Bocking</th>
                         <th className="px-4 py-2 border">Pago con Tarjeta</th>
+                        <th className="px-4 py-2 border">Descripcion</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -97,6 +98,7 @@ const Table = () => {
                                 <td className="border px-4 py-2">{dato.pagoReserva}</td>
                                 <td className="border px-4 py-2">{dato.pagoBocking}</td>
                                 <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
+                                <td className="border px-4 py-2">{dato.descripcion}</td>
                             </tr>
                         );
                     })}
