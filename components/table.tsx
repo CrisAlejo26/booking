@@ -25,7 +25,7 @@ const Table = () => {
         setColorFiltro(e.target.value);
     };
 
-    const coincidenciasConOrigen = coincidencias.map(item => ({ ...item, origen: 'coincidencias' }));
+    const coincidenciasConOrigen = coincidencias.map((item:any) => ({ ...item, origen: 'coincidencias' }));
     const coincidenciasPayCarConOrigen = coincidenciasPayCar.map(item => ({ ...item, origen: 'coincidenciasPayCar' }));
     const pagoBockingNoEncontradosConOrigen = pagoBockingNoEncontrados.map(item => ({ ...item, origen: 'pagoBockingNoEncontrados' }));
 
@@ -68,13 +68,14 @@ const Table = () => {
                         <th className="px-4 py-2 border">Pago de reserva</th>
                         <th className="px-4 py-2 border">Pago Bocking</th>
                         <th className="px-4 py-2 border">Pago con Tarjeta</th>
-                        <th className="px-4 py-2 border">Descripcion</th>
+                        <th className="px-4 py-2 border">Pagos encontrados en tarjetas</th>
                     </tr>
                     </thead>
                     <tbody>
 
                     {filasFiltradas.map((dato, index) => {
                         let className;
+                        let pagoExtraEstilo = dato.descripcion?.includes("el pago por") ? 'red' : null
                         if (dato.origen === 'coincidencias') {
                             let sinPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
                             let pagoBocking = dato.pagoReserva === dato.pagoBocking;
@@ -99,84 +100,14 @@ const Table = () => {
                                 <td className="border px-4 py-2">{dato.pagoReserva}</td>
                                 <td className="border px-4 py-2">{dato.pagoBocking}</td>
                                 <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
-                                <td className="border px-4 py-2">{dato.descripcion}</td>
+                                <td style={{backgroundColor: `${pagoExtraEstilo}`}} className="border px-4 py-2">{!dato.pagoReserva ? "Probablemente pago en efectivo" : dato.descripcion}</td>
                             </tr>
                         );
                     })}
-                    {/* {filasFiltradas.map((dato, index) => {
-                        let realizoPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
-                        let pagoBocking = dato.pagoReserva === dato.pagoBocking;
-                        let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
-                        
-                        // Determinar la clase en función de los datos
-                        let className = realizoPago ? "payBockingRed" : 
-                                        (pagoBocking || pagoTargeta) ? "payBocking" : 
-                                        "payNothing"; // Modifica esto según tus necesidades
-
-                        return (
-                            <tr className={className} key={index}>
-                                <td className="border px-4 py-2">{dato.reserva}</td>
-                                <td className="border px-4 py-2">{dato.bocking}</td>
-                                <td className="border px-4 py-2">{dato.pagoReserva}</td>
-                                <td className="border px-4 py-2">{dato.pagoBocking}</td>
-                                <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
-                            </tr>
-                        );
-                    })} */}
-                        {/* {
-                            coincidenciasPayCar.map((dato, index) => {
-                                return (
-                                <tr className="payNothing" key={index}
-                                >
-                                    <td className="border px-4 py-2">{dato.reserva}</td>
-                                    <td className="border px-4 py-2">{dato.bocking}</td>
-                                    <td className="border px-4 py-2">{dato.pagoReserva}</td>
-                                    <td className="border px-4 py-2">{dato.pagoBocking}</td>
-                                    <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
-                                </tr>
-                                )
-                            })
-                        }
-                        {
-                            pagoBockingNoEncontrados.map((dato, index) => {
-                                return (
-                                    <tr className="payNothing" key={index}
-                                >
-                                    <td className="border px-4 py-2">{dato.reserva}</td>
-                                    <td className="border px-4 py-2">{dato.bocking}</td>
-                                    <td className="border px-4 py-2">{dato.pagoReserva}</td>
-                                    <td className="border px-4 py-2">{dato.pagoBocking}</td>
-                                    <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
-                                </tr>
-                                )
-                            })
-                        }
-                        {coincidencias.map((dato, index) => {
-                            let pagoBocking = dato.pagoReserva === dato.pagoBocking;
-                            let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
-                            let realizoPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta"
-                            return (
-                                <tr 
-                                    className={
-                                        realizoPago ? 
-                                        "payBockingRed" : 
-                                        (pagoBocking ? "payBocking" : (pagoTargeta ? "payBocking": ""))
-                                    }
-                                    key={index}
-                                >
-                                    <td className="border px-4 py-2">{dato.reserva}</td>
-                                    <td className="border px-4 py-2">{dato.bocking}</td>
-                                    <td className="border px-4 py-2">{dato.pagoReserva}</td>
-                                    <td className="border px-4 py-2">{dato.pagoBocking}</td>
-                                    <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
-                                </tr>
-                            );
-                        })} */}
-
-                    <Probando/>
                     </tbody>
                 </table>
             </div>
+            {/* <Probando/> */}
         </div>
         </>
     )
