@@ -2,6 +2,7 @@ import { useAppSelector } from '@/store/store'
 import { Encontrada } from '@/thunks/thunkBockingState';
 import React, { useEffect, useState } from 'react'
 import { hourglass } from 'ldrs'
+import Probando from './prueba';
 
 interface Pagos {
     coincidencias: Encontrada[],
@@ -170,7 +171,7 @@ const Table = () => {
                             );
                         })} */}
 
-                    
+                    <Probando/>
                     </tbody>
                 </table>
             </div>
