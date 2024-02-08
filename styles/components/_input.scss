@@ -1,0 +1,26 @@
+.input[type="file"] {
+    display: none;
+}
+
+.label {
+    display: flex;
+    justify-content: center;
+    gap: .7rem;
+    text-transform: uppercase;
+    background-color: rgb(64, 64, 247);
+    color: white;
+    text-align: center;
+    padding: 15px 40px;
+    font-size: 1rem;
+    user-select: none;
+    cursor: pointer;
+    box-shadow: -1px 3px 7px 1px rgba(0,0,0,0.16);
+}
+
+.label:hover {
+    background-color: rgb(23, 23, 119);
+}
+
+.label:active {
+    transform: scale(0.9);
+}

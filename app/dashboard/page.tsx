@@ -1,15 +1,16 @@
-"use client"
-
-import { Uploader } from "@/components/uploader";
+"use client";
+import React, { useEffect } from 'react'
+import Card from '../../components/card';
+import Table from '../../components/table';
 
 const Page = () => {
 
     return (
-        <div>
-            <Uploader />
-        </div>
-    );
+        <>
+        <Card />
+        <Table />
+        </>
+    )
 }
 
-
-export default Page;
+export default Page

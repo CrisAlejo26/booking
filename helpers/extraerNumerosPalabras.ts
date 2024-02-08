@@ -14,3 +14,17 @@ export function extraerNumerosPorPalabrasClave(texto: string, palabrasClave: str
   
     return resultados;
   }
+
+
+export function inicializarMapaDeCoincidencias(reservas: any) {
+  const mapa = new Map();
+  reservas.forEach((reserva: any) => {
+      const clave = reserva[14] || reserva[16];
+      if (!mapa.has(clave)) {
+          mapa.set(clave, 1);
+      } else {
+          mapa.set(clave, mapa.get(clave) + 1);
+      }
+  });
+  return mapa;
+}

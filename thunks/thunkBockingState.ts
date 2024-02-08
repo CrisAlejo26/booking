@@ -1,6 +1,7 @@
+import { inicializarMapaDeCoincidencias } from "@/helpers/extraerNumerosPalabras";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import * as XLSX from 'xlsx';
-type ExcelRow = (string | number | boolean)[];
+export type ExcelRow = (string | number | boolean)[];
 export type Encontrada = {
     reserva: string;
     bocking: string;
@@ -11,11 +12,20 @@ export type Encontrada = {
     descripcion?: string
 };
 
+type ExcelData = string[][];
+
+
+interface Excels {
+    reservas: [] | any[];
+    pagoBocking: [] | any[];
+    payCar: [] | any[];
+}
+
 export const thunkBockingState = createAsyncThunk(
 
     'bockingPay',
 
-    async ({reser, boki, payCard}: {reser: string, boki: string, payCard: string}, { rejectWithValue }) => {
+    async ({reservas, pagoBocking, payCar}: Excels, { rejectWithValue }) => {
 
         try {
 
@@ -28,12 +38,12 @@ export const thunkBockingState = createAsyncThunk(
                 return XLSX.utils.sheet_to_json(ws, { header: 1 }) as ExcelRow[];
             };
 
-            const [reservas, pagoBocking, payCar] = await Promise.all([
-                fetchData(reser),
-                fetchData(boki),
-                fetchData(payCard)
-            ]);
-
+            // const [reservas, pagoBocking, payCar] = await Promise.all([
+            //     fetchData(reser),
+            //     fetchData(boki),
+            //     fetchData(payCard)
+            // ]);
+            // console.log(reservas);
             let coincidencias: Encontrada[] = [];
             let coincidenciasPayCar: Encontrada[] = [];
             let pagoBockingNoEncontrados: Encontrada[] = [];
@@ -47,12 +57,21 @@ export const thunkBockingState = createAsyncThunk(
                 let numnDesayuno = ""
                 let numnChanclas = ""
                 let numnLavanderia = ""
+                let numnRomantico = ""
+                let numnNevera = ""
+                let numnEstancia = ""
+                let nevera = ""
+                let estancia = ""
                 let snack = ""
                 let jaccuzi = ""
                 let desayuno = ""
                 let chanclas = ""
                 let lavanderia = ""
+                let romantico = ""
+                let pagoEstancia
+                let pagoNevera;
                 let pagoParking;
+                let pagoRomantico;
                 let pagoSnacks;
                 let pagoJacuzzi;
                 let pagoDesayuno;
@@ -63,6 +82,7 @@ export const thunkBockingState = createAsyncThunk(
                     return
                 }
                 let cadena: string = reserva[12] as string;
+                // console.log(cadena);
                 let numeroBocking: string = reserva[3] as string;
                 if(cadena) {
                     if(cadena.includes("Parking") || cadena.includes('parking') || cadena.includes('Ã‡Parking') || cadena.includes('PArking') || cadena.includes("paRKING") || cadena.includes("PARKING")) {
@@ -107,7 +127,6 @@ export const thunkBockingState = createAsyncThunk(
                         let palabras = cadena.split(', ');
                         const busq = palabras.findIndex(palabra => (palabra.includes('Jacuzzi') || palabra.includes('JACUZZI') || palabra.includes("jacuzzi")) && !palabra.includes("Efectivo"))
                         const elementoSnacks = palabras[busq];
-                        console.log(elementoSnacks);
                         if(elementoSnacks) {
                             let regex = /\(([^)]+)\)/;
                             let matches = elementoSnacks.match(regex);
@@ -125,7 +144,7 @@ export const thunkBockingState = createAsyncThunk(
                     if(cadena.includes("desayuno") || cadena.includes("DESAYUNO") || cadena.includes('Desayuno') || cadena.includes("desayunos")) {
                         desayuno = "Desayuno € "
                         let palabras = cadena.split(', ');
-                        const busq = palabras.findIndex(palabra => (palabra.includes('desayuno') || palabra.includes('Desayuno') || palabra.includes("desayunos") || palabra.includes("DESAYUNO")) && !palabra.includes("Efectivo"))
+                        const busq = palabras.findIndex(palabra => (palabra.includes('desayuno') || palabra.includes('Desayuno') || palabra.includes("desayunos") || palabra.includes("DESAYUNO") || palabra.includes("DESAYUNO Y SNACK")) && !palabra.includes("Efectivo"))
                         const elementoSnacks = palabras[busq];
                         if(elementoSnacks) {
                             let regex = /\(([^)]+)\)/;
@@ -182,6 +201,57 @@ export const thunkBockingState = createAsyncThunk(
                             }
                         }
                     }
+                    if(cadena.includes("romantico")) {
+                        romantico = "Pack Romantico € "
+                        let palabras = cadena.split(', ');
+                        const busq = palabras.findIndex(palabra => (palabra.includes("romantico")) && !palabra.includes("Efectivo"))
+                        const elementoSnacks = palabras[busq];
+                        if(elementoSnacks) {
+                            let regex = /\(([^)]+)\)/;
+                            let matches = elementoSnacks.match(regex);
+                            let numero = "";
+                            if (matches && matches[1]) {
+                                numero = matches[1];
+                                numnRomantico = numero.replace(",00", "");
+                                numnRomantico = numnRomantico.replace(',', '.');
+                                romantico += numnRomantico
+                            }
+                        }
+                    }
+                    if(cadena.includes("Nevera")) {
+                        nevera = "Nevera € "
+                        let palabras = cadena.split(', ');
+                        const busq = palabras.findIndex(palabra => (palabra.includes("Nevera")) && !palabra.includes("Efectivo"))
+                        const elementoSnacks = palabras[busq];
+                        if(elementoSnacks) {
+                            let regex = /\(([^)]+)\)/;
+                            let matches = elementoSnacks.match(regex);
+                            let numero = "";
+                            if (matches && matches[1]) {
+                                numero = matches[1];
+                                numnNevera = numero.replace(",00", "");
+                                numnNevera = numnNevera.replace(',', '.');
+                                nevera += numnNevera
+                            }
+                        }
+                    }
+                    if(cadena.includes("alarga estancia")) {
+                        estancia = "Alarga estancia € "
+                        let palabras = cadena.split(', ');
+                        const busq = palabras.findIndex(palabra => (palabra.includes("alarga estancia")) && !palabra.includes("Efectivo"))
+                        const elementoSnacks = palabras[busq];
+                        if(elementoSnacks) {
+                            let regex = /\(([^)]+)\)/;
+                            let matches = elementoSnacks.match(regex);
+                            let numero = "";
+                            if (matches && matches[1]) {
+                                numero = matches[1];
+                                numnEstancia = numero.replace(",00", "");
+                                numnEstancia = numnEstancia.replace(',', '.');
+                                estancia += numnEstancia
+                            }
+                        }
+                    }
                 }
 
                 // Busqueda en tarjetas y datafonos
@@ -202,6 +272,15 @@ export const thunkBockingState = createAsyncThunk(
                 }
                 if(numnLavanderia) {
                     pagoLavanderia = payCar.find(card => Number(numnLavanderia) === card[6]);
+                }
+                if(numnRomantico) {
+                    pagoRomantico = payCar.find(card => Number(numnRomantico) === card[6]);
+                }
+                if(numnNevera) {
+                    pagoNevera = payCar.find(card => Number(numnNevera) === card[6]);
+                }
+                if(numnEstancia) {
+                    pagoEstancia = payCar.find(card => Number(numnEstancia) === card[6]);
                 }
 
                 // Mostrar resultado segun busquedas
@@ -234,6 +313,21 @@ export const thunkBockingState = createAsyncThunk(
                     partesDescr.push(lavanderia);
                 } else if (!pagoLavanderia && numnLavanderia) {
                     partesDescr.push(`el pago por lavanderia no encontrado ${numnLavanderia}`);
+                }
+                if (pagoRomantico) {
+                    partesDescr.push(romantico);
+                } else if (!pagoRomantico && numnRomantico) {
+                    partesDescr.push(`el pago por lavanderia no encontrado ${numnRomantico}`);
+                }
+                if (pagoNevera) {
+                    partesDescr.push(nevera);
+                } else if (!pagoNevera && numnNevera) {
+                    partesDescr.push(`el pago por lavanderia no encontrado ${numnNevera}`);
+                }
+                if (pagoEstancia) {
+                    partesDescr.push(estancia);
+                } else if (!pagoNevera && numnEstancia) {
+                    partesDescr.push(`el pago por lavanderia no encontrado ${numnEstancia}`);
                 }
 
                 if (pagoParking) {
@@ -271,7 +365,7 @@ export const thunkBockingState = createAsyncThunk(
                             pagoBocking: pagoBock ? pagoBock[5] as string : "Sin pago de bocking",
                             pagoTarjeta: pagoCard ? pagoCard[6] as string  : "Sin pago de tarjeta",
                             descripcion: descr,
-                        });
+                        })
                     }else {
                         if(pagoCard) {
                             coincidencias.push({
@@ -287,36 +381,37 @@ export const thunkBockingState = createAsyncThunk(
                 }
             });
 
-            // payCar.forEach(card => {
-            //     const coincidenciaReserva = reservas.find(reserva => reserva[14] === card[6]);
-            //     const coincidenciasDatafono = reservas.find(reserva => reserva[16] === card[6]);
+            const mapaDeCoincidencias = inicializarMapaDeCoincidencias(reservas)
+            payCar.forEach(card => {
+                const clave = card[6];
+                const coincidenciaReserva = reservas.find(reserva => (reserva[14] === clave || reserva[16] === clave) && mapaDeCoincidencias.get(clave) > 0);
+                if (coincidenciaReserva) {
+                    mapaDeCoincidencias.set(clave, mapaDeCoincidencias.get(clave) - 1);
+                    return
+                } else {
+                    // Si no hay coincidencias, ejecutar este bloque
+                    coincidenciasPayCar.push({
+                        reserva: "Esta en pagos con tarjeta pero no en reservas",
+                        bocking: "Esta en pagos con tarjeta pero no en reservas",
+                        pagoReserva: "Esta en pagos con tarjeta pero no en reservas",
+                        pagoBocking: "Esta en pagos con tarjeta pero no en reservas",
+                        pagoTarjeta: card[6] as string
+                    })
+                }
+            });
 
-            //     if (coincidenciaReserva || coincidenciasDatafono) {
-            //         return
-            //     } else {
-            //         // Si no hay coincidencias, ejecutar este bloque
-            //         coincidenciasPayCar.push({
-            //             reserva: "Esta en pagos con tarjeta pero no en reservas",
-            //             bocking: "Esta en pagos con tarjeta pero no en reservas",
-            //             pagoReserva: "Esta en pagos con tarjeta pero no en reservas",
-            //             pagoBocking: "Esta en pagos con tarjeta pero no en reservas",
-            //             pagoTarjeta: card[6] as string
-            //         })
-            //     }
-            // });
-
-            // pagoBocking.forEach(boki => {
-            //     const coincidenciaReserva = reservas.find(reserva => reserva[3] === boki[0]);
-            //     if (!coincidenciaReserva) {
-            //         pagoBockingNoEncontrados.push({
-            //             reserva: "Esta en pagos con bocking pero no en reservas",
-            //             bocking: boki[0] === "NÚMERO DE RESERVA" ? "Sin pago de bocking" : boki[0] as string,
-            //             pagoReserva: "Esta en pagos con bocking pero no en reservas",
-            //             pagoBocking: boki[0] === "NÚMERO DE RESERVA" ? "Sin pago de bocking" : boki[5] as string, // Asumiendo que este es el dato relevante
-            //             pagoTarjeta: "Esta en pagos con bocking pero no en reservas"
-            //         });
-            //     }
-            // });
+            pagoBocking.forEach(boki => {
+                const coincidenciaReserva = reservas.find(reserva => reserva[3] === boki[0]);
+                if (!coincidenciaReserva && boki[0] !== "NÚMERO DE RESERVA") {
+                    pagoBockingNoEncontrados.push({
+                        reserva: "Esta en pagos con bocking pero no en reservas",
+                        bocking: boki[0] === "NÚMERO DE RESERVA" ? "Sin pago de bocking" : boki[0] as string,
+                        pagoReserva: "Esta en pagos con bocking pero no en reservas",
+                        pagoBocking: boki[0] === "NÚMERO DE RESERVA" ? "Sin pago de bocking" : boki[5] as string, // Asumiendo que este es el dato relevante
+                        pagoTarjeta: "Esta en pagos con bocking pero no en reservas"
+                    });
+                }
+            });
 
             return {coincidencias, coincidenciasPayCar, pagoBockingNoEncontrados};
 

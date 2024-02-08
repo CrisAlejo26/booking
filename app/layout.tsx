@@ -6,6 +6,7 @@ import "../styles/styles.scss";
 import { Providers } from '@/store/Providers';
 import { Container, Nav, NavLink, Navbar, NavbarBrand } from 'react-bootstrap';
 import { NextUIProvider } from '@nextui-org/react';
+import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,10 +27,9 @@ export default function RootLayout({
           <Navbar bg="primary" data-bs-theme="dark">
             <Container>
               <NavbarBrand>Bocking</NavbarBrand>
-              <Nav className="me-auto">
-                <NavLink href="#home">Inicio</NavLink>
-                <NavLink href="#features">Contacto</NavLink>
-                <NavLink href="#pricing">Precios</NavLink>
+              <Nav className="me-auto gap-3">
+                <Link className="text-white" href="/">Inicio</Link>
+                <Link className="text-white" href="/dashboard">Dashboard</Link>
               </Nav>
             </Container>
           </Navbar>
