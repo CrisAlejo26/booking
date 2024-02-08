@@ -5,8 +5,8 @@ import { Inter } from 'next/font/google'
 import "../styles/styles.scss";
 import { Providers } from '@/store/Providers';
 import { Container, Nav, NavLink, Navbar, NavbarBrand } from 'react-bootstrap';
-import { NextUIProvider } from '@nextui-org/react';
 import Link from 'next/link';
+import { Toaster, toast } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -35,6 +35,7 @@ export default function RootLayout({
           </Navbar>
           {children}
         </Providers>
+        <Toaster richColors />
       </body>
     </html>
   )

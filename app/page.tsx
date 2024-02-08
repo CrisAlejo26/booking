@@ -134,7 +134,6 @@ const Home = () => {
         <div className="d-grid gap-2">
             <button onClick={onClick} className="btn btn-outline-success mt-10 btn-lg h-16">Ingresar archivos</button>
         </div>
-        <Toaster richColors />
         </Container>
     );
 };

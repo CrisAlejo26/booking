@@ -1,12 +1,13 @@
 "use client"
 
-import { useAppSelector } from '@/store/store'
+import { useAppDispatch, useAppSelector } from '@/store/store'
 import { Encontrada } from '@/thunks/thunkBockingState';
 import React, { useEffect, useState } from 'react'
-import { hourglass } from 'ldrs'
 import { ClockLoader } from 'react-spinners'
 import Button from '@mui/material/Button';
 import Modal from './modal';
+import { Tabla } from '../interfaces'
+import { cambioFiltro } from '@/store/state/bockingSlice';
 
 interface Pagos {
     coincidencias: Encontrada[],
@@ -17,54 +18,73 @@ interface Pagos {
 const Table = () => {
 
     const [showModal, setShowModal] = useState(false);
+    const dispatch = useAppDispatch();
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
+    const [datoIdentificador, setDatoIdentificador] = useState<Tabla>({origen: "",
+        color: "",
+        id: "",
+        observaciones: "",
+        reserva: "",
+        bocking: "",
+        pagoReserva: "",
+        pagoBocking: "",
+        pagoTarjeta: "",
+        descripcion: ""});
 
-    const { coincidencias, coincidenciasPayCar, pagoBockingNoEncontrados }: Pagos = useAppSelector(state => state.bocking.pagos);
+    const onClick = (dato: any) => {
+        setShowModal(true)
+        setDatoIdentificador(dato)
+    }
+
+    const { coincidencias }: Pagos = useAppSelector(state => state.bocking.pagos);
+    const { filasFiltradas } = useAppSelector(state => state.bocking);
     const [colorFiltro, setColorFiltro] = useState('');
-
     const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        if(!coincidencias) {
-            return setLoading(true)
-        }
-        setLoading(false)
-    }, [coincidencias])
     
 
     const handleColorChange = (e: any) => {
-        setColorFiltro(e.target.value);
-    };
+        // setColorFiltro(e.target.value);
+        console.log(e.target.value);
+        dispatch(cambioFiltro(e.target.value))
+    }
 
-    const coincidenciasConOrigen = coincidencias.map((item:any) => ({ ...item, origen: 'coincidencias', color: "payBocking" }));
-    const coincidenciasPayCarConOrigen = coincidenciasPayCar.map(item => ({ ...item, origen: 'coincidenciasPayCar', color: "payBockingRed" }));
-    const pagoBockingNoEncontradosConOrigen = pagoBockingNoEncontrados.map(item => ({ ...item, origen: 'pagoBockingNoEncontrados', color: "payBockingRed" }));
+    // const coincidenciasConOrigen = coincidencias.map((item, index) => ({ ...item, origen: 'coincidencias', color: "payBocking", id: `coincidencias-${index}`, observaciones: "Sin observacion" }));
+    // const coincidenciasPayCarConOrigen = coincidenciasPayCar.map((item, index) => ({ ...item, origen: 'coincidenciasPayCar', color: "payBockingRed", id: `coincidenciasPayCar-${index}`, observaciones: "Sin observacion" }));
+    // const pagoBockingNoEncontradosConOrigen = pagoBockingNoEncontrados.map((item, index) => ({ ...item, origen: 'pagoBockingNoEncontrados', color: "payBockingRed", id: `pagoBockingNoEncontrados-${index}`, observaciones: "Sin observacion" }));
 
-    const filasFiltradas = [
-        ...coincidenciasConOrigen,
-        ...coincidenciasPayCarConOrigen,
-        ...pagoBockingNoEncontradosConOrigen
-    ].filter(dato => {
-        let sinPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
-        let pagoBocking = dato.pagoReserva === dato.pagoBocking;
-        let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
-        let pagoTarjetaSinImporteReservas = dato.reserva === "Esta en pagos con tarjeta pero no en reservas";
-        let pagoBockingSinEncontrarEnReservas = dato.reserva === "Esta en pagos con bocking pero no en reservas"
-        if (colorFiltro === "payBockingRed" && sinPago) return true;
-        if (colorFiltro === "payBockingRed" && pagoBockingSinEncontrarEnReservas) return true
-        if (colorFiltro === "payBockingRed" && pagoTarjetaSinImporteReservas) return true;
-        if (colorFiltro === "payBocking" && (pagoBocking || pagoTargeta)) return true;
-        if (colorFiltro === "payNothing" && !sinPago && !pagoBocking && !pagoTargeta) return true;
-        if (colorFiltro === '') return true; // Muestra todos si no hay filtro
+    // const filasFiltradas = [
+    //     ...coincidenciasConOrigen,
+    //     ...coincidenciasPayCarConOrigen,
+    //     ...pagoBockingNoEncontradosConOrigen
+    // ].filter(dato => {
+    //     let sinPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
+    //     let pagoBocking = dato.pagoReserva === dato.pagoBocking;
+    //     let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
+    //     let pagoTarjetaSinImporteReservas = dato.reserva === "Esta en pagos con tarjeta pero no en reservas";
+    //     let pagoBockingSinEncontrarEnReservas = dato.reserva === "Esta en pagos con bocking pero no en reservas"
+    //     if (colorFiltro === "payBockingRed" && sinPago) return true;
+    //     if (colorFiltro === "payBockingRed" && pagoBockingSinEncontrarEnReservas) return true
+    //     if (colorFiltro === "payBockingRed" && pagoTarjetaSinImporteReservas) return true;
+    //     if (colorFiltro === "payBocking" && (pagoBocking || pagoTargeta)) return true;
+    //     if (colorFiltro === "payNothing" && !sinPago && !pagoBocking && !pagoTargeta) return true;
+    //     if (colorFiltro === '') return true; // Muestra todos si no hay filtro
 
-        return false;
-    });
+    //     return false;
+    // })
 
     const [checkedState, setCheckedState] = useState(
-        filasFiltradas.map(rec =>  false)
+        filasFiltradas.map(() =>  false)
     );
+
+    useEffect(() => {
+        if(filasFiltradas.length === 0) {
+            return setLoading(true)
+        }
+
+        setLoading(false)
+    }, [filasFiltradas])
 
     const handleCheckboxChange = (position: any) => {
         // Actualiza el estado de los checkboxes
@@ -74,8 +94,6 @@ const Table = () => {
 
         setCheckedState(updatedCheckedState);
     };
-    
-    hourglass.register()
 
     return (
         <>
@@ -120,7 +138,7 @@ const Table = () => {
                                 } else if (pagoBocking || pagoTargeta) {
                                     className = "payBocking";
                                 } else {
-                                    className = "payNothing"; // Amarillo para los que no cumplen ninguna condición
+                                    className = "payNothing";
                                 }
                             } else {
                                 // Las filas de coincidenciasPayCar y pagoBockingNoEncontrados siempre en amarillo
@@ -147,14 +165,14 @@ const Table = () => {
                                             id={`flexSwitchCheckChecked-${index}`} 
                                             checked={checkedState[index]}
                                             onChange={() => handleCheckboxChange(index)} />
-                                        <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Revisado</label>
+                                        <label className="form-check-label" htmlFor={`flexSwitchCheckChecked-${index}`}>Revisado</label>
                                     </div>
                                 </td>
                                 <td className="border px-4 py-2">
-                                    Contenido
+                                {dato.observaciones}
                                 </td>
                                 <td className="border px-4 py-2">
-                                    <Button onClick={handleShowModal} size="small">Agregar</Button>
+                                    <Button onClick={() => onClick(dato)} size="small">Agregar</Button>
                                     <Button size="small">Editar</Button>
                                 </td>
                             </tr>
@@ -167,7 +185,7 @@ const Table = () => {
             </div>
         </div>
         }
-        <Modal show={showModal} onHide={handleCloseModal} />
+        <Modal identificador={datoIdentificador} datoEditarObervacion={filasFiltradas} show={showModal} onHide={handleCloseModal} />
         </>
     )
 }
