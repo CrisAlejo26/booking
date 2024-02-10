@@ -1,99 +1,15 @@
 "use client"
 
-import { useAppDispatch, useAppSelector } from '@/store/store'
-import { Encontrada } from '@/thunks/thunkBockingState';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { ClockLoader } from 'react-spinners'
 import Button from '@mui/material/Button';
 import Modal from './modal';
-import { Tabla } from '../interfaces'
-import { cambioFiltro } from '@/store/state/bockingSlice';
-
-interface Pagos {
-    coincidencias: Encontrada[],
-    coincidenciasPayCar: Encontrada[],
-    pagoBockingNoEncontrados: Encontrada[]
-};
+import { useTable } from '@/hooks/useTable';
 
 const Table = () => {
 
-    const [showModal, setShowModal] = useState(false);
-    const dispatch = useAppDispatch();
-
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
-    const [datoIdentificador, setDatoIdentificador] = useState<Tabla>({origen: "",
-        color: "",
-        id: "",
-        observaciones: "",
-        reserva: "",
-        bocking: "",
-        pagoReserva: "",
-        pagoBocking: "",
-        pagoTarjeta: "",
-        descripcion: ""});
-
-    const onClick = (dato: any) => {
-        setShowModal(true)
-        setDatoIdentificador(dato)
-    }
-
-    const { coincidencias }: Pagos = useAppSelector(state => state.bocking.pagos);
-    const { filasFiltradas } = useAppSelector(state => state.bocking);
-    const [colorFiltro, setColorFiltro] = useState('');
-    const [loading, setLoading] = useState(true)
+    const { datoIdentificador, handleCloseModal, handleColorChange, loading, onClick, showModal, checkedState, filasFiltradas, handleCheckboxChange, todosDatos, editarObservacionModal  } = useTable()
     
-
-    const handleColorChange = (e: any) => {
-        // setColorFiltro(e.target.value);
-        console.log(e.target.value);
-        dispatch(cambioFiltro(e.target.value))
-    }
-
-    // const coincidenciasConOrigen = coincidencias.map((item, index) => ({ ...item, origen: 'coincidencias', color: "payBocking", id: `coincidencias-${index}`, observaciones: "Sin observacion" }));
-    // const coincidenciasPayCarConOrigen = coincidenciasPayCar.map((item, index) => ({ ...item, origen: 'coincidenciasPayCar', color: "payBockingRed", id: `coincidenciasPayCar-${index}`, observaciones: "Sin observacion" }));
-    // const pagoBockingNoEncontradosConOrigen = pagoBockingNoEncontrados.map((item, index) => ({ ...item, origen: 'pagoBockingNoEncontrados', color: "payBockingRed", id: `pagoBockingNoEncontrados-${index}`, observaciones: "Sin observacion" }));
-
-    // const filasFiltradas = [
-    //     ...coincidenciasConOrigen,
-    //     ...coincidenciasPayCarConOrigen,
-    //     ...pagoBockingNoEncontradosConOrigen
-    // ].filter(dato => {
-    //     let sinPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
-    //     let pagoBocking = dato.pagoReserva === dato.pagoBocking;
-    //     let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
-    //     let pagoTarjetaSinImporteReservas = dato.reserva === "Esta en pagos con tarjeta pero no en reservas";
-    //     let pagoBockingSinEncontrarEnReservas = dato.reserva === "Esta en pagos con bocking pero no en reservas"
-    //     if (colorFiltro === "payBockingRed" && sinPago) return true;
-    //     if (colorFiltro === "payBockingRed" && pagoBockingSinEncontrarEnReservas) return true
-    //     if (colorFiltro === "payBockingRed" && pagoTarjetaSinImporteReservas) return true;
-    //     if (colorFiltro === "payBocking" && (pagoBocking || pagoTargeta)) return true;
-    //     if (colorFiltro === "payNothing" && !sinPago && !pagoBocking && !pagoTargeta) return true;
-    //     if (colorFiltro === '') return true; // Muestra todos si no hay filtro
-
-    //     return false;
-    // })
-
-    const [checkedState, setCheckedState] = useState(
-        filasFiltradas.map(() =>  false)
-    );
-
-    useEffect(() => {
-        if(filasFiltradas.length === 0) {
-            return setLoading(true)
-        }
-
-        setLoading(false)
-    }, [filasFiltradas])
-
-    const handleCheckboxChange = (position: any) => {
-        // Actualiza el estado de los checkboxes
-        const updatedCheckedState = checkedState.map((item, index) =>
-            index === position ? !item : item
-        );
-
-        setCheckedState(updatedCheckedState);
-    };
 
     return (
         <>
@@ -124,24 +40,27 @@ const Table = () => {
                         </tr>
                     </thead>
                     <tbody>
-                    {loading ? <ClockLoader size={150} color="#3659d6" />
-                        :
+                    {
                         filasFiltradas.map((dato, index) => {
                             let className;
                             let pagoExtraEstilo = dato.descripcion?.includes("el pago por") ? 'red' : null
                             if (dato.origen === 'coincidencias') {
                                 let sinPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
+                                let sinPagoTarjeta = dato.reserva === "Esta en pagos con tarjeta pero no en reservas"
+                                let sinPagoBoking = dato.reserva === "Esta en pagos con bocking pero no en reservas"
                                 let pagoBocking = dato.pagoReserva === dato.pagoBocking;
                                 let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
-                                if (sinPago) {
+                                if ( sinPago || sinPagoTarjeta || sinPagoBoking ) {
                                     className = "payBockingRed";
                                 } else if (pagoBocking || pagoTargeta) {
                                     className = "payBocking";
                                 } else {
                                     className = "payNothing";
                                 }
-                            } else {
-                                // Las filas de coincidenciasPayCar y pagoBockingNoEncontrados siempre en amarillo
+                            } else if(dato.origen === 'SinCoincidencias') {
+                                className = "payNothing";
+                            }
+                            else {
                                 className = 'payBockingRed';
                             }
 
@@ -169,23 +88,22 @@ const Table = () => {
                                     </div>
                                 </td>
                                 <td className="border px-4 py-2">
-                                {dato.observaciones}
+                                    {dato.observaciones}
                                 </td>
                                 <td className="border px-4 py-2">
-                                    <Button onClick={() => onClick(dato)} size="small">Agregar</Button>
-                                    <Button size="small">Editar</Button>
+                                    {dato.observaciones === "Sin observacion" && <Button onClick={() => onClick(dato)} size="small">Agregar</Button>}
+                                    {dato.observaciones !== "Sin observacion" && <Button onClick={() => editarObservacionModal(dato)} size="small">Editar</Button>}
                                 </td>
                             </tr>
-                        );
-                    })
-                    
+                            );
+                        })
                     }
                     </tbody>
                 </table>
             </div>
         </div>
         }
-        <Modal identificador={datoIdentificador} datoEditarObervacion={filasFiltradas} show={showModal} onHide={handleCloseModal} />
+        <Modal identificador={datoIdentificador} datoEditarObervacion={todosDatos} show={showModal} onHide={handleCloseModal} />
         </>
     )
 }

@@ -1,3 +1,5 @@
+import { Encontrada } from "./thunks/thunkBockingState";
+
 export interface Tabla {
     origen: string;
     color: string;
@@ -9,6 +11,7 @@ export interface Tabla {
     pagoBocking: string;
     pagoTarjeta: string;
     descripcion?: string | undefined;
+    checket?: boolean
 }
 
 export interface ModalProps {
@@ -17,3 +20,9 @@ export interface ModalProps {
     datoEditarObervacion: Tabla[]
     identificador: Tabla;
 }
+
+export interface Pagos {
+    coincidencias: Encontrada[],
+    coincidenciasPayCar: Encontrada[],
+    pagoBockingNoEncontrados: Encontrada[]
+};

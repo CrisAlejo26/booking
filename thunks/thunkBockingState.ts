@@ -38,12 +38,6 @@ export const thunkBockingState = createAsyncThunk(
                 return XLSX.utils.sheet_to_json(ws, { header: 1 }) as ExcelRow[];
             };
 
-            // const [reservas, pagoBocking, payCar] = await Promise.all([
-            //     fetchData(reser),
-            //     fetchData(boki),
-            //     fetchData(payCard)
-            // ]);
-            // console.log(reservas);
             let coincidencias: Encontrada[] = [];
             let coincidenciasPayCar: Encontrada[] = [];
             let pagoBockingNoEncontrados: Encontrada[] = [];

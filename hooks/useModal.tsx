@@ -1,12 +1,21 @@
-import React, { CSSProperties } from 'react'
+import { Tabla } from '@/interfaces';
+import { actualizarObservaciones, resetObservaciones } from '@/store/state/bockingSlice';
+import { useAppDispatch, useAppSelector } from '@/store/store';
+import { CSSProperties, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 interface Shows {
     show: any;
     onHide: any;
+    datoEditarObervacion: Tabla[];
+    identificador: Tabla;
 }
 
-const useModal = ({show, onHide}: Shows) => {
+const useModal = ({show, onHide, datoEditarObervacion, identificador}: Shows) => {
 
+    const dispatch = useAppDispatch()
+    const { editarObservaciones } = useAppSelector(state => state.bocking);
+    const [observacion, setObservacion] = useState('')
     const showHideClassName = show ? "modal fade show d-block" : "modal fade";
     const backdropStyle: CSSProperties = {
         position: 'fixed',
@@ -19,9 +28,50 @@ const useModal = ({show, onHide}: Shows) => {
         display: show ? 'block' : 'none',
     };
 
+    useEffect(() => {
+        if(editarObservaciones) {
+            setObservacion(editarObservaciones.observaciones)
+        }
+    }, [editarObservaciones])
+    
+
+    const onChangeInput = (event: any) => {
+        setObservacion(event.target.value)
+        // dispatch(onChangeInputObservaciones(event.target.value))
+    }
+
+    const onClickGuardar = () => {
+        if(!observacion) {
+            return toast.error("El campo de observacion esta vacio");
+        }
+        
+        const indiceObjetoEncontrado = datoEditarObervacion.findIndex(it => it.id === identificador.id);
+
+        if (indiceObjetoEncontrado !== -1) {
+            // Crear una nueva lista con el objeto modificado
+            const nuevaLista = [...datoEditarObervacion];
+            nuevaLista[indiceObjetoEncontrado] = { ...nuevaLista[indiceObjetoEncontrado], observaciones: observacion };
+            dispatch(actualizarObservaciones({data: nuevaLista, indice: indiceObjetoEncontrado, observacion: observacion}));
+            setObservacion('')
+            dispatch(resetObservaciones())
+            onHide();
+        }
+    }
+    
+
+    const cerrarCampo = () => {
+        setObservacion('')
+        onHide();
+        dispatch(resetObservaciones())
+    }
+
     return {
         showHideClassName,
-        backdropStyle
+        backdropStyle,
+        onChangeInput,
+        cerrarCampo,
+        onClickGuardar,
+        observacion
     }
 }
 
