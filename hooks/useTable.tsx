@@ -1,5 +1,5 @@
 import { Pagos, Tabla } from '@/interfaces';
-import { actualizarCheck, actualizarObservaciones, cambioFiltro, editarObservaciones } from '@/store/state/bockingSlice';
+import { actualizarCheck, cambiarColorFiltro, editarObservaciones } from '@/store/state/bockingSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import React, { useEffect, useState } from 'react'
 
@@ -23,7 +23,7 @@ export const useTable = () => {
         descripcion: ""});    
 
     const handleColorChange = (e: any) => {
-        dispatch(cambioFiltro(e.target.value))
+        dispatch(cambiarColorFiltro(e.target.value))
     }
 
     const [checkedState, setCheckedState] = useState(
@@ -31,12 +31,6 @@ export const useTable = () => {
             return rot.checket
         })
     );
-
-    // useEffect(() => {
-    //     setCheckedState(filasFiltradas.map((rot) =>  {
-    //         return rot.checket
-    //     }))
-    // }, [filasFiltradas])
     
 
     useEffect(() => {
@@ -47,26 +41,8 @@ export const useTable = () => {
         setLoading(false)
     }, [filasFiltradas])
 
-    const handleCheckboxChange = (position: number) => {
-        // Actualiza directamente el elemento afectado en el estado de los checkboxes
-        const updatedCheckedState = [...checkedState];
-        updatedCheckedState[position] = !updatedCheckedState[position];
-        
-        // Actualiza el estado local
-        setCheckedState(updatedCheckedState);
-        
-        console.log(updatedCheckedState[position]);
-        // Crea una copia de todosDatos y actualiza solo el elemento afectado
-        // const updatedTodosDatos: Tabla[] = todosDatos.map((item, index) => {
-        //     if (index === position) {
-        //         console.log(item);
-        //         return { ...item, checket: updatedCheckedState[position] };
-        //     }
-        //     return item;
-        // });
-    
-        // Envía el arreglo actualizado a Redux
-        dispatch(actualizarCheck(position));
+    const handleCheckboxChange = (dato: Tabla) => {
+        dispatch(actualizarCheck({ id: dato.id, checked: !dato.checket }));
     };
 
     const onClick = (dato: any) => {

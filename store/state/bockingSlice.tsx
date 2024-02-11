@@ -1,6 +1,7 @@
-import { Tabla } from '@/interfaces';
-import { Encontrada, thunkBockingState } from '@/thunks/thunkBockingState';
+import { Encontrada, Tabla } from '@/interfaces';
+import { thunkBockingState } from '@/thunks/thunkBockingState';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { createSelector } from 'reselect';
 // soporte4@neofranquicias.com	soport4%@
 
 interface State {
@@ -57,38 +58,13 @@ const bockingSlice = createSlice({
     name: "bocking",
     initialState,
     reducers: {
-        cambioFiltro( state, action: PayloadAction<string>) {
-            state.colorFiltro = action.payload
-            const recargandoDatos = state.todosDatos.map((item, index) => 
-            ({ 
-                ...item, 
-                origen: item.origen, 
-                color: "payBocking", 
-                id: item.id, 
-                observaciones: item.observaciones === "Sin observacion" ? 
-                "Sin observacion" :
-                item.observaciones,
-                checket: item.checket
-            }))
-            const filasFiltradas = [
-                ...recargandoDatos
-            ].filter(dato => {
-                let sinPago = dato.pagoBocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta";
-                let pagoBocking = dato.pagoReserva === dato.pagoBocking;
-                let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
-                let pagoTarjetaSinImporteReservas = dato.reserva === "Esta en pagos con tarjeta pero no en reservas";
-                let pagoBockingSinEncontrarEnReservas = dato.reserva === "Esta en pagos con bocking pero no en reservas"
-                if (state.colorFiltro === "payBockingRed" && sinPago) return true;
-                if (state.colorFiltro === "payBockingRed" && pagoBockingSinEncontrarEnReservas) return true
-                if (state.colorFiltro === "payBockingRed" && pagoTarjetaSinImporteReservas) return true;
-                if (state.colorFiltro === "payBocking" && (pagoBocking || pagoTargeta)) return true;
-                if (state.colorFiltro === "payNothing" && !sinPago && !pagoBocking && !pagoTargeta) return true;
-                if (state.colorFiltro === '') return true; // Muestra todos si no hay filtro
 
-                return false;
-            })
-
-            state.filasFiltradas = filasFiltradas;
+        actualizarDatos(state, action: PayloadAction<Tabla[]>) {
+            state.filasFiltradas = action.payload;
+        },
+    
+        cambiarColorFiltro(state, action: PayloadAction<string>) {
+            state.colorFiltro = action.payload;
         },
 
         actualizarObservaciones( state, action: PayloadAction<{indice: number, data: Tabla[], observacion: string}>) {
@@ -115,10 +91,13 @@ const bockingSlice = createSlice({
             };
         },
 
-        actualizarCheck( state, action: PayloadAction<number>) {
-            const updatedCheckedState = [...state.todosDatos];
-            updatedCheckedState[action.payload].checket = !updatedCheckedState[action.payload];
-            state.todosDatos = updatedCheckedState;
+        actualizarCheck(state, action: PayloadAction<{ id: string, checked: boolean }>) {
+            const { id, checked } = action.payload;
+            const index = state.todosDatos.findIndex(item => item.id === id);
+            if (index !== -1) {
+                state.todosDatos[index] = { ...state.todosDatos[index], checket: checked };
+            }
+            // No es necesario actualizar filasFiltradas aquí, ya que el selector lo hará
         },
 
         editarObservaciones( state, action: PayloadAction<Tabla>) {
@@ -145,7 +124,7 @@ const bockingSlice = createSlice({
                                 color: "payBocking", 
                                 id: `coincidencias-${index}`, 
                                 observaciones: "Sin observacion",
-                                checket: true 
+                                checket: false 
                             })
                         } else if (pagoBocking || pagoTargeta) {
                             return({ 
@@ -229,6 +208,6 @@ const bockingSlice = createSlice({
     }
 });
 
-export const { cambioFiltro, actualizarObservaciones, editarObservaciones, actualizarCheck, resetObservaciones } = bockingSlice.actions
+export const { actualizarObservaciones, editarObservaciones, actualizarCheck, resetObservaciones, cambiarColorFiltro, actualizarDatos } = bockingSlice.actions
 
 export default bockingSlice.reducer
