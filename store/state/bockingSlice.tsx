@@ -115,7 +115,7 @@ const bockingSlice = createSlice({
                         let sinPago = item.pagoBocking === "Sin pago de bocking" && item.pagoTarjeta === "Sin pago de tarjeta";
                         let sinPagoTarjeta = item.reserva === "Esta en pagos con tarjeta pero no en reservas"
                         let sinPagoBoking = item.reserva === "Esta en pagos con bocking pero no en reservas"
-                        let pagoBocking = item.pagoReserva === item.pagoBocking;
+                        let pagoBocking = item.pagoReserva === item.pagoBocking
                         let pagoTargeta = item.pagoReserva === item.pagoTarjeta;
                         if ( sinPago || sinPagoTarjeta || sinPagoBoking ) {
                             return({ 

@@ -59,7 +59,7 @@ export const thunkBockingState = createAsyncThunk(
                         reserva: reserva[0] as string,
                         bocking: numeroBocking || "Sin booking",
                         pagoReserva: String(valorReserv),
-                        pagoBocking: pagoBock ? String(pagoBock[9]): "Sin pago de bocking",
+                        pagoBocking: pagoBock ? (String(pagoBock[9]) === "" ? "Sin pago de bocking" : String(pagoBock[9])): "Sin pago de bocking",
                         pagoTarjeta: pagoCard ? pagoCard[6] as string : "Sin pago de tarjeta",
                         descripcion: descr
                     });
