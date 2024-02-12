@@ -11,7 +11,7 @@ const Table = () => {
 
     const { datoIdentificador, handleCloseModal, handleColorChange, loading, onClick, showModal, checkedState, handleCheckboxChange, todosDatos, editarObservacionModal  } = useTable()
     const filasFiltradas = useAppSelector(getFilasFiltradas);
-    
+    let efectivo = "";
 
     return (
         <>
@@ -51,6 +51,17 @@ const Table = () => {
                                 let sinPagoBoking = dato.reserva === "Esta en pagos con bocking pero no en reservas"
                                 let pagoBocking = dato.pagoReserva === dato.pagoBocking;
                                 let pagoTargeta = dato.pagoReserva === dato.pagoTarjeta;
+                                let SinPagosEfectivo = dato.bocking === "Sin pago de bocking" && dato.pagoTarjeta === "Sin pago de tarjeta"
+                                efectivo = "Probablemente pago en efectivo";
+                                if(dato.pagoReserva === "Sin informacion") {
+                                    efectivo = "Probablemente pago en efectivo"
+                                }else {
+                                    if(SinPagosEfectivo){
+                                        efectivo = "Probablemente pago en efectivo"
+                                    }else {
+                                        efectivo = dato.descripcion || "Sin gastos extra"
+                                    }
+                                }
                                 if ( sinPago || sinPagoTarjeta || sinPagoBoking ) {
                                     className = "payBockingRed";
                                 } else if (pagoBocking || pagoTargeta) {
@@ -74,7 +85,7 @@ const Table = () => {
                                     <td className="border px-4 py-2">{dato.pagoTarjeta}</td>
                                     <td 
                                         style={{backgroundColor: `${pagoExtraEstilo}`}} 
-                                        className="border px-4 py-2">{!dato.pagoReserva ? "Probablemente pago en efectivo" : dato.descripcion}
+                                        className="border px-4 py-2">{efectivo === "Probablemente pago en efectivo" ? efectivo : dato.descripcion}
                                     </td>
                                     <td style={{backgroundColor: `${pagoExtraEstilo}`}} className="border px-4 py-2">
                                         <div className="form-check form-switch">

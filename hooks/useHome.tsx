@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { ExcelRow, thunkBockingState } from '@/thunks/thunkBockingState';
 import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import { toast } from 'sonner';
 import * as XLSX from "xlsx";
 
@@ -15,11 +15,11 @@ export const useHome = () => {
     const [payCar, setPayCar] = useState<any[]>([]);
 
     const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, tipoArchivo: string) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
             const ab = e.target.result;
             const wb = XLSX.read(ab, { type: "array" });
             const wsname = wb.SheetNames[0];
@@ -33,9 +33,9 @@ export const useHome = () => {
             } else if (tipoArchivo === "payCar") {
                 setPayCar(informacion);
             }
-            };
-            reader.readAsArrayBuffer(file);
         };
+        reader.readAsArrayBuffer(file);
+    };
 
     const onClick = async () => {
 

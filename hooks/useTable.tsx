@@ -1,7 +1,7 @@
-import { Pagos, Tabla } from '@/interfaces';
+import { Tabla } from '@/interfaces';
 import { actualizarCheck, cambiarColorFiltro, editarObservaciones } from '@/store/state/bockingSlice';
 import { useAppDispatch, useAppSelector } from '@/store/store';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export const useTable = () => {
 
@@ -37,7 +37,6 @@ export const useTable = () => {
         if(filasFiltradas.length === 0) {
             return setLoading(true)
         }
-        console.log("renderizado");
         setLoading(false)
     }, [filasFiltradas])
 

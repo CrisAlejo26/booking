@@ -41,7 +41,7 @@ const Home = () => {
                 <h2>Boking</h2>
                 <FontAwesomeIcon icon={faUpload} style={{ color: "#ffffff" }} />
             </label>
-            {pagoBocking.length > 1 && <p>Archivo de boking subido</p>}
+            {pagoBocking.length > 0 && <p>Archivo de boking subido</p>}
             </div>
             <div>
             <input
