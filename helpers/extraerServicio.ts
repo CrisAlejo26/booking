@@ -28,7 +28,8 @@ export function extraerServicio(cadena: string | undefined, tipoServicio: string
 
 
 export function construirDescripcion(...partes: ParteDescr[]): string {
-    let descripciones = partes.filter(parte => parte.numero && !parte.pago).map(parte => `el pago por ${parte.servicio} no encontrado ${parte.numero}`);
+
+    let descripciones = partes.filter(parte => parte.numero !== "").map(parte => `El pago por ${parte.servicio} se encontró`);
     if (descripciones.length === 0) return "Sin pagos extras";
     if (descripciones.length === 2) return descripciones.join(' y ');
     return descripciones.join(', ');

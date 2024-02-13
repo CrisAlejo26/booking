@@ -23,22 +23,39 @@ export const thunkBockingState = createAsyncThunk(
                 if (reserva[0] === "Numero de reserva") return;
 
                 let cadena = reserva[12] as string;
-                let numeroBocking = reserva[3] as string;
 
-                const servicios: ParteDescr[] = [
-                    extraerServicio(cadena, "Parking", "Parking"),
-                    extraerServicio(cadena, "snacks", "Snacks"),
-                    extraerServicio(cadena, "JACUZZI", "Jacuzzi"),
-                ];
+                let numeroBocking = reserva[3] as string;
+                let servicios: ParteDescr[] = []
+                if(cadena) {
+                    servicios = [
+                        extraerServicio(cadena, "Parking", "Parking"),
+                        extraerServicio(cadena, "snacks", "Snacks"),
+                        // extraerServicio(cadena, "snacks", "Snacks"),
+                        extraerServicio(cadena, "JACUZZI", "Jacuzzi"),
+                        extraerServicio(cadena, "jacuzzi", "Jacuzzi"),
+                        // extraerServicio(cadena, "lavanderia", "Jacuzzi"),
+                        extraerServicio(cadena, "DESAYUNO", "Desayuno"),
+                        extraerServicio(cadena, "desayuno", "Desayuno"),
+                    ];
+                }
 
                 servicios.forEach(servicio => {
-                    servicio.pago = servicio.numero ? mapPayCar.get(Number(servicio.numero)) : null;
+                    if(servicio.numero === "") return
+                    servicio.pago = servicio.numero ? mapPayCar.get(String(servicio.numero)) : null;
                 });
 
                 let descr = construirDescripcion(...servicios);
+                let pagoBock = []
+                pagoBock = pagoBocking.find(boki => numeroBocking === boki[1]);
 
-                const pagoBock = pagoBocking.find(boki => numeroBocking === boki[1]);
-                console.log(pagoBock);
+                if(pagoBock){
+                    if(pagoBock[0] === "Informe del pago"){
+                        return
+                    }
+                    if(pagoBock[0].includes("Fecha de emisión del pago")){
+                        return
+                    }
+                }
                 let pagoCard;
                 if (reserva[14]) {
                     pagoCard = mapPayCar.get(String(reserva[14]));
@@ -78,19 +95,20 @@ export const thunkBockingState = createAsyncThunk(
                         bocking: "Esta en pagos con tarjeta pero no en reservas",
                         pagoReserva: "Esta en pagos con tarjeta pero no en reservas",
                         pagoBocking: "Esta en pagos con tarjeta pero no en reservas",
-                        pagoTarjeta: quitarEur
+                        pagoTarjeta: quitarEur,
                     });
                 }
             });
 
             pagoBocking.forEach(boki => {
-                const coincidenciaReserva = reservas.find(reserva => reserva[3] === boki[0]);
+                const coincidenciaReserva = reservas.find(reserva => reserva[3] === boki[1]);
                 if (!coincidenciaReserva && boki[1] !== "Número de referencia") {
+                    if(boki[1] === "") return
                     pagoBockingNoEncontrados.push({
                         reserva: "Esta en pagos con bocking pero no en reservas",
-                        bocking: boki[0] as string,
+                        bocking: boki[1] as string,
                         pagoReserva: "Esta en pagos con bocking pero no en reservas",
-                        pagoBocking: boki[5] as string,
+                        pagoBocking: boki[9] as string,
                         pagoTarjeta: "Esta en pagos con bocking pero no en reservas"
                     });
                 }
