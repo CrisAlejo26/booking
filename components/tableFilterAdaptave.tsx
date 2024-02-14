@@ -12,8 +12,7 @@ import { useAppSelector } from '@/store/store';
 import getFilasFiltradas from '@/hooks/useFiltro';
 import { Tabla } from '@/interfaces';
 import { ClockLoader } from 'react-spinners';
-
-let datos: Tabla[] = []
+import Modal from './modal';
 
 const TableFilter = () => {
     const {
@@ -24,44 +23,32 @@ const TableFilter = () => {
     const filasFiltradas = useAppSelector(getFilasFiltradas);
     let efectivo = "";
 
-    // Función de filtrado personalizada para la columna de color
-    const filterColor: MRT_FilterFn<Tabla> = ({ column, row, filterValue }) => {
-        // Aquí defines cómo se compara el valor de la fila con el valor del filtro
-        // Por ejemplo, si tuvieras una propiedad 'color' en tus datos:
-        return row.original.color === filterValue;
-    };
-
-    useEffect(() => {
-        datos = filasFiltradas;
-    }, [filasFiltradas]);
-
     const columns = useMemo<MRT_ColumnDef<Tabla>[]>(
         () => [
             {
-                accessorKey: 'color', // Asegúrate de que esta clave coincida con tus datos
+                accessorKey: 'backgroundColor',
                 header: 'Color',
-                filterFn: filterColor, // Usando la función de filtrado personalizada
-                // Otros ajustes de la columna...
+                size: 80,
             },
             {
                 accessorKey: 'reserva',
-                header: 'N° de Reserva',
-                size: 100,
+                header: 'Reserva',
+                size: 80,
             },
             {
                 accessorKey: 'bocking',
-                header: 'N° de boocking',
-                size: 150,
+                header: 'Boocking',
+                size: 100,
             },
             {
                 accessorKey: 'pagoReserva', //normal accessorKey
                 header: 'Pago reserva',
-                size: 150,
+                size: 100,
             },
             {
                 accessorKey: 'pagoBocking',
                 header: 'Pago Bocking',
-                size: 150,
+                size: 100,
             },
             {
                 accessorKey: 'pagoTarjeta',
@@ -97,7 +84,11 @@ const TableFilter = () => {
                 Cell: ({ row }) => (
                     <Checkbox
                         checked={row.original.checket || false}
-                        onChange={() => handleCheckboxChange(row.original)}
+                        onChange={(event) => {
+                            event.preventDefault()
+                            event.stopPropagation(); // Esto evita que el evento se propague
+                            handleCheckboxChange(row.original, event);
+                        }}
                     />
                 ),
             },
@@ -128,7 +119,8 @@ const TableFilter = () => {
     const table = useMaterialReactTable({
         columns,
         data: filasFiltradas, // Asegúrate de que filasFiltradas sea la fuente de datos correcta
-        enableColumnFiltering: true,
+        // enableColumnFiltering: true,
+        enableColumnFilters: true,
         muiTableHeadCellProps: {
             sx: {
                 fontWeight: 'normal',
@@ -137,23 +129,7 @@ const TableFilter = () => {
             },
         },
         muiTableBodyRowProps: ({row}) => {
-            let backgroundColor = '#FFF'; // Color por defecto
-            if (row.original.origen === 'coincidencias') {
-                let sinPago = row.original.pagoBocking === "Sin pago de bocking" && row.original.pagoTarjeta === "Sin pago de tarjeta";
-                let sinPagoTarjeta = row.original.reserva === "Esta en pagos con tarjeta pero no en reservas";
-                let sinPagoBoking = row.original.reserva === "Esta en pagos con bocking pero no en reservas";
-                let pagoBocking = row.original.pagoReserva === row.original.pagoBocking;
-                let pagoTargeta = row.original.pagoReserva === row.original.pagoTarjeta;
-                let SinPagosEfectivo = row.original.bocking === "Sin pago de bocking" && row.original.pagoTarjeta === "Sin pago de tarjeta";
-                
-                if (sinPago || sinPagoTarjeta || sinPagoBoking) {
-                    backgroundColor = 'red'; // Rojo para ciertas condiciones
-                } else if (pagoBocking || pagoTargeta || SinPagosEfectivo) {
-                    backgroundColor = '#DBE7C9'; // Verde para otras condiciones
-                } 
-            } else if (row.original.origen === 'SinCoincidencias') {
-                backgroundColor = '#FFF59D'; // Amarillo para sin coincidencias
-            }
+            let backgroundColor = row.original.color
 
             return {
                 sx: {
@@ -167,9 +143,16 @@ const TableFilter = () => {
     return (
         <>
             {loading ? <div className='flex justify-center align-center mt-14'><ClockLoader size={150} color="#3659d6" /></div> :
-                <div className='container mt-5 shadow-md mb-5'><MaterialReactTable table={table} /></div>
+                <div className='container mt-5 shadow-md mb-6'>
+                    <MaterialReactTable table={table} />
+                </div>
             }
-            {/* Aquí iría tu componente Modal si es necesario */}
+            <Modal 
+                identificador={datoIdentificador} 
+                datoEditarObervacion={filasFiltradas} 
+                show={showModal}
+                onHide={handleCloseModal} 
+            />
         </>
     );
 };

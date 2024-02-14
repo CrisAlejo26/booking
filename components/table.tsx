@@ -10,7 +10,7 @@ import getFilasFiltradas from '@/hooks/useFiltro';
 const Table = () => {
 
     const { datoIdentificador, handleCloseModal, handleColorChange, loading, onClick, showModal, checkedState, handleCheckboxChange, todosDatos, editarObservacionModal  } = useTable()
-    const filasFiltradas = useAppSelector(getFilasFiltradas);
+    // const filasFiltradas = useAppSelector(getFilasFiltradas);
     let efectivo = "";
 
     return (

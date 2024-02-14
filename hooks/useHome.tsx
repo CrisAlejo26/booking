@@ -15,6 +15,7 @@ export const useHome = () => {
     const [payCar, setPayCar] = useState<any[]>([]);
 
     const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, tipoArchivo: string) => {
+        e.preventDefault();
         const file = e.target.files?.[0];
         if (!file) return;
 

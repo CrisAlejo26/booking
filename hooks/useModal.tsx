@@ -7,14 +7,14 @@ import { toast } from 'sonner'
 interface Shows {
     show: any;
     onHide: any;
-    datoEditarObervacion: Tabla[];
+    datoEditarObervacion?: Tabla[];
     identificador: Tabla;
 }
 
 const useModal = ({show, onHide, datoEditarObervacion, identificador}: Shows) => {
 
     const dispatch = useAppDispatch()
-    const { editarObservaciones } = useAppSelector(state => state.bocking);
+    const { editarObservaciones, filasFiltradas } = useAppSelector(state => state.bocking);
     const [observacion, setObservacion] = useState('')
     const showHideClassName = show ? "modal fade show d-block" : "modal fade";
     const backdropStyle: CSSProperties = {
@@ -37,7 +37,6 @@ const useModal = ({show, onHide, datoEditarObervacion, identificador}: Shows) =>
 
     const onChangeInput = (event: any) => {
         setObservacion(event.target.value)
-        // dispatch(onChangeInputObservaciones(event.target.value))
     }
 
     const onClickGuardar = () => {
@@ -45,11 +44,11 @@ const useModal = ({show, onHide, datoEditarObervacion, identificador}: Shows) =>
             return toast.error("El campo de observacion esta vacio");
         }
         
-        const indiceObjetoEncontrado = datoEditarObervacion.findIndex(it => it.id === identificador.id);
+        const indiceObjetoEncontrado = filasFiltradas.findIndex(it => it.id === identificador.id);
 
         if (indiceObjetoEncontrado !== -1) {
             // Crear una nueva lista con el objeto modificado
-            const nuevaLista = [...datoEditarObervacion];
+            const nuevaLista = [...filasFiltradas];
             nuevaLista[indiceObjetoEncontrado] = { ...nuevaLista[indiceObjetoEncontrado], observaciones: observacion };
             dispatch(actualizarObservaciones({data: nuevaLista, indice: indiceObjetoEncontrado, observacion: observacion}));
             setObservacion('')

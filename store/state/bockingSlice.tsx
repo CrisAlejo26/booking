@@ -1,27 +1,7 @@
-import { Encontrada, Tabla } from '@/interfaces';
+import { Encontrada, State, Tabla } from '@/interfaces';
 import { thunkBockingState } from '@/thunks/thunkBockingState';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { createSelector } from 'reselect';
-// soporte4@neofranquicias.com	soport4%@
-
-interface State {
-    pagos: {
-        coincidencias: number,
-        coincidenciasPayCar: number,
-        pagoBockingNoEncontrados: number
-    };
-    pagosAcumulados: {
-        coincidencias: Encontrada[],
-        coincidenciasPayCar: Encontrada[],
-        pagoBockingNoEncontrados: Encontrada[]
-    }
-    messageBocking: string
-    colorFiltro: string,
-    filasFiltradas: Tabla[],
-    todosDatos: Tabla[],
-    cambioObvervacion: boolean,
-    editarObservaciones: Tabla,
-}
+import { v4 as uuidv4 } from 'uuid';
 
 const initialState: State = {
     pagos: {
@@ -41,6 +21,8 @@ const initialState: State = {
     todosDatos: [],
     cambioObvervacion: false,
     editarObservaciones: {
+        uuId: "",
+        idTable: "",
         origen: "",
         color: "",
         id: "",
@@ -51,6 +33,8 @@ const initialState: State = {
         pagoBocking: "",
         pagoTarjeta: "",
         descripcion: "",
+        backgroundColor: "",
+        checket: false
     },
 }
 
@@ -78,6 +62,10 @@ const bockingSlice = createSlice({
 
         resetObservaciones( state) {
             state.editarObservaciones = {
+                uuId: "",
+                idTable: "",
+                backgroundColor: "",
+                checket: false,
                 origen: "",
                 color: "",
                 id: "",
@@ -108,41 +96,55 @@ const bockingSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(thunkBockingState.fulfilled, (state, action) => {
+                const uuId = uuidv4()
                 if(action.payload) {
                     state.pagosAcumulados = action.payload
                     const coincidenciasConOrigen = action.payload.coincidencias.map((item, index) => {
-                        
                         let sinPago = item.pagoBocking === "Sin pago de bocking" && item.pagoTarjeta === "Sin pago de tarjeta";
                         let sinPagoTarjeta = item.reserva === "Esta en pagos con tarjeta pero no en reservas"
                         let sinPagoBoking = item.reserva === "Esta en pagos con bocking pero no en reservas"
                         let pagoBocking = item.pagoReserva === item.pagoBocking
                         let pagoTargeta = item.pagoReserva === item.pagoTarjeta;
+                        let SinPagosEfectivo = item.bocking === "Sin pago de bocking" && item.pagoTarjeta === "Sin pago de tarjeta";
                         if ( sinPago || sinPagoTarjeta || sinPagoBoking ) {
+                            
                             return({ 
                                 ...item, 
+                                uuId: "",
                                 origen: 'coincidencias', 
-                                color: "payBocking", 
+                                color: "red", 
+                                backgroundColor: "Rojo",
                                 id: `coincidencias-${index}`, 
+                                idTable: uuId, 
                                 observaciones: "Sin observacion",
-                                checket: false 
+                                checket: false,
+
                             })
-                        } else if (pagoBocking || pagoTargeta) {
+                        } else if (pagoBocking || pagoTargeta || SinPagosEfectivo) {
                             return({ 
                                 ...item, 
+                                uuId: "",
                                 origen: 'coincidencias', 
-                                color: "payBocking", 
+                                color: "#DBE7C9", 
+                                backgroundColor: "Verde", 
                                 id: `coincidencias-${index}`, 
+                                idTable: uuId,
                                 observaciones: "Sin observacion",
-                                checket: true 
+                                checket: true,
+ 
                             })
                         } else {
                             return({ 
                                 ...item, 
+                                uuId: "",
                                 origen: 'SinCoincidencias', 
-                                color: "payBocking", 
+                                color: "#FFF59D", 
+                                backgroundColor: "Amarillo", 
                                 id: `coincidencias-${index}`, 
+                                idTable: uuId, 
                                 observaciones: "Sin observacion",
-                                checket: false
+                                checket: false,
+
                             })
                         }
                         
@@ -150,20 +152,26 @@ const bockingSlice = createSlice({
                     const coincidenciasPayCarConOrigen = action.payload.coincidenciasPayCar.map((item, index) => 
                         ({ 
                             ...item, 
+                            uuId: "",
                             origen: 'coincidenciasPayCar', 
-                            color: "payBockingRed", 
-                            id: `coincidenciasPayCar-${index}`, 
+                            color: "red", 
+                            backgroundColor: "Rojo", 
+                            id: `coincidenciasPayCar-${index}`,
+                            idTable: uuId, 
                             observaciones: "Sin observacion",
-                            checket: false
+                            checket: false,
                         }));
                     const pagoBockingNoEncontradosConOrigen = action.payload.pagoBockingNoEncontrados.map((item, index) => 
                         ({ 
                             ...item, 
+                            uuId: "",
                             origen: 'pagoBockingNoEncontrados', 
-                            color: "payBockingRed", 
-                            id: `pagoBockingNoEncontrados-${index}`, 
+                            color: "red", 
+                            backgroundColor: "rojo", 
+                            id: `pagoBockingNoEncontrados-${index}`,
+                            idTable: uuId, 
                             observaciones: "Sin observacion",
-                            checket: false 
+                            checket: false,
                         }));
 
                     const filasFiltradas = [

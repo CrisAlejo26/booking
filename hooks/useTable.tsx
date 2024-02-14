@@ -11,16 +11,7 @@ export const useTable = () => {
     const [loading, setLoading] = useState(true)
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
-    const [datoIdentificador, setDatoIdentificador] = useState<Tabla>({origen: "",
-        color: "",
-        id: "",
-        observaciones: "",
-        reserva: "",
-        bocking: "",
-        pagoReserva: "",
-        pagoBocking: "",
-        pagoTarjeta: "",
-        descripcion: ""});    
+    const [datoIdentificador, setDatoIdentificador] = useState<any>()
 
     const handleColorChange = (e: any) => {
         dispatch(cambiarColorFiltro(e.target.value))
@@ -38,15 +29,21 @@ export const useTable = () => {
             return setLoading(true)
         }
         setLoading(false)
-    }, [filasFiltradas])
+    }, [])
 
-    const handleCheckboxChange = (dato: Tabla) => {
+    const handleCheckboxChange = (dato: Tabla, event: any) => {
+        event.preventDefault()
         dispatch(actualizarCheck({ id: dato.id, checked: !dato.checket }));
     };
 
     const onClick = (dato: any) => {
         setShowModal(true)
-        setDatoIdentificador(dato)
+        try {
+            setDatoIdentificador(dato)
+            console.log(dato);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const editarObservacionModal = (dato: Tabla) => {
